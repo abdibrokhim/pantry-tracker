@@ -14,10 +14,10 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 interface LoginProps {
-  // setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Login: React.FC<LoginProps> = () => {
+const Login: React.FC<LoginProps> = ({setIsLoggedIn}) => {
   const router = useRouter();
 
   const handleGoogleSignIn = () => {
@@ -25,7 +25,7 @@ const Login: React.FC<LoginProps> = () => {
       .then((result) => {
         const user = result.user;
         localStorage.setItem("userId", user.uid);
-        // setIsLoggedIn(true);
+        setIsLoggedIn(true);
         router.push('/playground');
         console.log("User signed in: ", user);
       })
@@ -44,18 +44,21 @@ const Login: React.FC<LoginProps> = () => {
   , [router]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-24">
-    <Box textAlign="center">
-      <Button
-        variant="contained"
-        color="primary"
-        startIcon={<GoogleIcon />}
-        onClick={handleGoogleSignIn}
-        >
-        Sign in with Google
-      </Button>
-    </Box>
+    <>
+      <p className='flex text-[32px] mt-8 items-center justify-center'>Collaborative Pantry</p>
+        <div className="flex min-h-screen items-center justify-center p-24">
+          <Box textAlign="center">
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<GoogleIcon />}
+              onClick={handleGoogleSignIn}
+              >
+              Sign in with Google
+            </Button>
+          </Box>
         </div>
+        </>
   );
 }
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, RefObject } from 'react';
 import { Camera, CameraType } from 'react-camera-pro';
-import { Button, Box, IconButton, CircularProgress, Typography, Card, CardContent, CardMedia } from '@mui/material';
+import { Button, Box, IconButton, CircularProgress, Typography, Card, CardContent, CardMedia, TextField } from '@mui/material';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { initializeApp } from 'firebase/app';
 import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage';
@@ -16,8 +16,7 @@ const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 const firestore = getFirestore(app);
 
-const openai = new OpenAI({ apiKey: "sk-proj-vlhxSu82mdkrrCbqC1HwT3BlbkFJH8LYnNfoQnpUUbQisZER", dangerouslyAllowBrowser: true});
-
+const openai = new OpenAI({ apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY, dangerouslyAllowBrowser: true });
 
 export default function CameraComponent() {
   const camera = useRef<CameraType>(null);
@@ -25,6 +24,7 @@ export default function CameraComponent() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [jsonResponse, setJsonResponse] = useState<Food | null>(null);
+  const [editableData, setEditableData] = useState<Partial<Food>>({});
 
   const instructions = `You are given an image of food. Return json in string format with the following. make sure it's parsable: 
   [example]
@@ -95,6 +95,7 @@ export default function CameraComponent() {
     if (jsonMatch) {
       const jsonResponse: Food = JSON.parse(jsonMatch[1].trim());
       setJsonResponse(jsonResponse);
+      setEditableData(jsonResponse);
       console.log("jsonResponse: ", jsonResponse);
     } else {
       console.error('No JSON found in prediction:', prediction);
@@ -132,7 +133,7 @@ export default function CameraComponent() {
       const docRef = doc(firestore, 'products', `${Date.now()}`);
       await setDoc(docRef, {
         imageUrl,
-        jsonResponse,
+        jsonResponse: editableData,
       });
       alert('Data saved successfully!');
 
@@ -140,7 +141,15 @@ export default function CameraComponent() {
       setImage(null);
       setImageUrl(null);
       setJsonResponse(null);
+      setEditableData({});
     }
+  };
+
+  const handleChange = (field: keyof Food, value: any) => {
+    setEditableData({
+      ...editableData,
+      [field]: value,
+    });
   };
 
   return (
@@ -148,7 +157,7 @@ export default function CameraComponent() {
       <Box width="100%" height="auto" mb={2}>
         <Camera
           ref={camera as RefObject<CameraType>}
-          aspectRatio={1 / 2}
+          aspectRatio={1/1}
           errorMessages={{
             noCameraAccessible: 'No camera device accessible. Please connect your camera or try a different browser.',
             permissionDenied: 'Permission denied. Please refresh and give camera permission.',
@@ -168,23 +177,51 @@ export default function CameraComponent() {
       )}
       {jsonResponse && (
         <>
-        <Typography variant="h5" mt={2} mb={2}>Data to save</Typography>
+        <Typography variant="h5" mt={2} mb={2}>Edit Data Before Saving</Typography>
         <Box display="flex" flexDirection="row" flexWrap="wrap" gap={4} alignItems="center" justifyContent="center" p={2}>
           <Card sx={{ maxWidth: 345, mb: 2 }}>
             <CardMedia component="img" width="140" image={imageUrl || ''} alt="Food image" />
             <CardContent>
-              <Typography variant="h6">Info</Typography>
-              <Typography variant="body2">Name: {jsonResponse.name}</Typography>
-              <Typography variant="body2">Description: {jsonResponse.shortInfo}</Typography>
-              <Typography variant="body2">Benefits: {jsonResponse.benefits}</Typography>
-              <Typography variant="body2">Quantity: {jsonResponse.quantity}</Typography>
+              <TextField
+                label="Name"
+                variant="outlined"
+                value={editableData.name || ''}
+                onChange={(e) => handleChange('name', e.target.value)}
+                fullWidth
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                label="Description"
+                variant="outlined"
+                value={editableData.shortInfo || ''}
+                onChange={(e) => handleChange('shortInfo', e.target.value)}
+                fullWidth
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                label="Benefits"
+                variant="outlined"
+                value={editableData.benefits || ''}
+                onChange={(e) => handleChange('benefits', e.target.value)}
+                fullWidth
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                label="Quantity"
+                variant="outlined"
+                type="number"
+                value={editableData.quantity || 0}
+                onChange={(e) => handleChange('quantity', Number(e.target.value))}
+                fullWidth
+                sx={{ mb: 2 }}
+              />
               <Typography variant="body2" mt={1} mb={1}>Recipes:</Typography>
-              {jsonResponse.recipes.map((recipe, index) => (
+              {editableData.recipes?.map((recipe, index) => (
                 <Box key={index} mb={1}>
                   <Typography variant="body2">Name: {recipe.name}</Typography>
                   <Typography variant="body2">Ingredients:</Typography>
                   {recipe.ingredients.map((ingredient, ingredientIndex) => (
-                    <Typography variant="body2" key={ingredientIndex}>
+                    <Typography key={ingredientIndex} variant="body2">
                       {ingredient.name}: {ingredient.quantity}
                     </Typography>
                   ))}
