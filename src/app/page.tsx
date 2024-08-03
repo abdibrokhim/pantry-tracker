@@ -23,7 +23,7 @@ const Home: React.FC = () => {
     <>
       {isLoggedIn ? 
         <Dashboard /> :
-        <Login setIsLoggedIn={setIsLoggedIn} />
+        <Login />
       }
     </>
   );

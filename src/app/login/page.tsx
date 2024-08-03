@@ -13,10 +13,10 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 interface LoginProps {
-  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+  // setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Login: React.FC<LoginProps> = ({ setIsLoggedIn }) => {
+const Login: React.FC<LoginProps> = () => {
   const router = useRouter();
 
   const handleGoogleSignIn = () => {
@@ -24,7 +24,7 @@ const Login: React.FC<LoginProps> = ({ setIsLoggedIn }) => {
       .then((result) => {
         const user = result.user;
         localStorage.setItem("userId", user.uid);
-        setIsLoggedIn(true);
+        // setIsLoggedIn(true);
         router.push('/playground');
         console.log("User signed in: ", user);
       })
@@ -40,7 +40,7 @@ const Login: React.FC<LoginProps> = ({ setIsLoggedIn }) => {
       router.push('/playground');
     }
   }
-  , [router, setIsLoggedIn]);
+  , [router]);
 
   return (
     <div className="flex min-h-screen items-center justify-center p-24">
