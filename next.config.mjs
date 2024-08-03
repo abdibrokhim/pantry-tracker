@@ -1,4 +1,19 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+    images: {
+        remotePatterns: [
+            {
+              protocol: 'https',
+              hostname: 'iili.io',
+              port: '',
+            },
+            {
+                protocol: 'https',
+                hostname: 'firebasestorage.googleapis.com',
+                port: '',
+            },
+        ],
+    },
+};
 
 export default nextConfig;
