@@ -16,7 +16,7 @@ const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 const firestore = getFirestore(app);
 
-const openai = new OpenAI({ apiKey: process.env.NEXT_PUBLIC_openaiApiKey, dangerouslyAllowBrowser: true});
+const openai = new OpenAI({ apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY!, dangerouslyAllowBrowser: true});
 
 export default function CameraComponent() {
   const camera = useRef<CameraType>(null);

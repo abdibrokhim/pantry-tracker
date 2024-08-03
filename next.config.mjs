@@ -1,15 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    env: {
-        apiKey: "",
-        authDomain: "",
-        projectId: "",
-        storageBucket: "",
-        messagingSenderId: "",
-        appId: "",
-        measurementId: "",
-        NEXT_PUBLIC_openaiApiKey: "",
-      },
     images: {
         remotePatterns: [
             {
